@@ -1,0 +1,74 @@
+package com.walletapp;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+public class WalletServiceTest {
+
+    private WalletService walletService;
+
+    @BeforeEach
+    public void setup() {
+        walletService = new WalletService();
+        // Starting balance zero by default
+    }
+
+    // Test 1: Check initial balance is zero
+    @Test
+    public void testInitialBalance() {
+        assertEquals(0, walletService.getBalance());
+    }
+
+    // Test 2: Add money and check balance updates
+    @Test
+    public void testAddMoney() {
+        walletService.addMoney(500);
+        assertEquals(500, walletService.getBalance());
+
+        walletService.addMoney(200);
+        assertEquals(700, walletService.getBalance());
+    }
+
+    // Test 3: Withdraw money successfully
+    @Test
+    public void testWithdrawMoney_Success() {
+        walletService.addMoney(1000);
+        boolean result = walletService.withdrawMoney(300);
+        assertTrue(result);
+        assertEquals(700, walletService.getBalance());
+    }
+
+    // Test 4: Withdraw money failure due to insufficient balance
+    @Test
+    public void testWithdrawMoney_Failure() {
+        walletService.addMoney(100);
+        boolean result = walletService.withdrawMoney(200);
+        assertFalse(result);
+        assertEquals(100, walletService.getBalance());
+    }
+
+    // Test 5: Transaction history after add and withdraw
+    @Test
+    public void testTransactionHistory() {
+        walletService.addMoney(1000);
+        walletService.withdrawMoney(400);
+        walletService.addMoney(200);
+
+        List<String> transactions = walletService.getTransactionHistory();
+
+        assertEquals(3, transactions.size());
+        assertTrue(transactions.get(0).contains("Added: 1000"));
+        assertTrue(transactions.get(1).contains("Withdrawn: 400"));
+        assertTrue(transactions.get(2).contains("Added: 200"));
+    }
+
+    // Test 6: Transaction history empty initially
+    @Test
+    public void testEmptyTransactionHistory() {
+        List<String> transactions = walletService.getTransactionHistory();
+        assertTrue(transactions.isEmpty());
+    }
+}
